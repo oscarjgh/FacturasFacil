@@ -1,0 +1,9 @@
+**/.vs
+**/.git
+**/bin
+**/obj
+**/*.user
+**/ResultadoExcel
+**/*.db
+**/*.db-shm
+**/*.db-wal

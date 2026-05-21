@@ -1,0 +1,21 @@
+## .NET
+bin/
+obj/
+*.user
+.vs/
+
+## Base de datos local
+*.db
+*.db-shm
+*.db-wal
+
+## Excels generados
+ResultadoExcel/*/
+
+## Secretos (NUNCA subir)
+appsettings.local.json
+appsettings.Production.json
+
+## OS
+.DS_Store
+Thumbs.db
