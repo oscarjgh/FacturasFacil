@@ -152,6 +152,16 @@ public static class PlanesEndpoints
                         user.StripeSubscriptionId = session.SubscriptionId;
                         user.SuscripcionVence = DateTime.UtcNow.AddMonths(1);
                         await um.UpdateAsync(user);
+
+                        // Reiniciar contador del mes actual al activar plan de pago
+                        var ahora = DateTime.UtcNow;
+                        var uso = await db.UsosMensuales.FirstOrDefaultAsync(u =>
+                            u.UserId == userId && u.Anno == ahora.Year && u.Mes == ahora.Month);
+                        if (uso != null)
+                        {
+                            uso.FacturasProcesadas = 0;
+                            await db.SaveChangesAsync();
+                        }
                     }
                 }
                 else if (evt.Type == "customer.subscription.deleted")
