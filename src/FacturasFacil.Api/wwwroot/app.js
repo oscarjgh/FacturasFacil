@@ -81,11 +81,12 @@ async function login() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
-    const data = await res.json();
-    if (!res.ok) { showError(errEl, 'Credenciales incorrectas.'); return; }
+    if (res.status === 401) { showError(errEl, 'Correo o contraseña incorrectos.'); return; }
+    const data = await safeJson(res);
+    if (!res.ok) { showError(errEl, data.error || 'Error al iniciar sesión.'); return; }
     saveSession(data);
     showPage('dashboard');
-  } catch { showError(errEl, 'Error de conexión con el servidor.'); }
+  } catch (err) { showError(errEl, `Error de conexión: ${err.message || err}`); }
   finally  { setLoading('btnLogin', false, 'Entrar'); }
 }
 
@@ -109,14 +110,14 @@ async function register() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nombreCompleto: nombre, empresa: empresa || null, email, password })
     });
-    const data = await res.json();
+    const data = await safeJson(res);
     if (!res.ok) {
       const msg = data.errores ? data.errores.join(', ') : (data.error || 'Error al registrar.');
       showError(errEl, msg); return;
     }
     saveSession(data);
     showPage('dashboard');
-  } catch { showError(errEl, 'Error de conexión.'); }
+  } catch (err) { showError(errEl, `Error de conexión: ${err.message || err}`); }
   finally  { setLoading('btnRegister', false, 'Crear cuenta gratis'); }
 }
 
