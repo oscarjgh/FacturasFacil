@@ -30,8 +30,11 @@ public static class PlanesEndpoints
             UserManager<ApplicationUser> um,
             UsoService usoSvc) =>
         {
-            var userId = principal.FindFirstValue("sub")!;
-            var user = await um.Users.Include(u => u.Plan).FirstAsync(u => u.Id == userId);
+            var userId = principal.FindFirstValue("sub")
+                        ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null) return Results.Unauthorized();
+            var user = await um.Users.Include(u => u.Plan).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user is null) return Results.Unauthorized();
             var uso = await usoSvc.ObtenerUsoActualAsync(userId);
             var limite = user.Plan.LimiteFacturasMes;
             var esIlimitado = limite == -1;
@@ -60,7 +63,9 @@ public static class PlanesEndpoints
                             "Contacta al administrador para activar Stripe."
                 });
 
-            var userId = principal.FindFirstValue("sub")!;
+            var userId = principal.FindFirstValue("sub")
+                        ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null) return Results.Unauthorized();
             var user   = await um.FindByIdAsync(userId);
             var plan   = await db.Planes.FindAsync(req.PlanId);
 

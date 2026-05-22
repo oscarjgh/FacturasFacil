@@ -27,8 +27,11 @@ public static class FacturasEndpoints
             if (files.Count == 0)
                 return Results.BadRequest(new { error = "Debe enviar al menos un archivo ZIP o RAR." });
 
-            var userId = principal.FindFirstValue("sub")!;
-            var user = await um.Users.Include(u => u.Plan).FirstAsync(u => u.Id == userId);
+            var userId = principal.FindFirstValue("sub")
+                        ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null) return Results.Unauthorized();
+            var user = await um.Users.Include(u => u.Plan).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user is null) return Results.Unauthorized();
 
             // Leer archivos en memoria para poder contar facturas primero
             var archivos = new List<(string Nombre, Stream Contenido)>();
@@ -108,7 +111,9 @@ public static class FacturasEndpoints
             int pagina = 1,
             int porPagina = 20) =>
         {
-            var userId = principal.FindFirstValue("sub")!;
+            var userId = principal.FindFirstValue("sub")
+                        ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null) return Results.Unauthorized();
             var historial = await db.HistorialExcels
                 .Where(h => h.UserId == userId)
                 .OrderByDescending(h => h.FechaGeneracion)
@@ -128,7 +133,9 @@ public static class FacturasEndpoints
             ClaimsPrincipal principal,
             AppDbContext db) =>
         {
-            var userId = principal.FindFirstValue("sub")!;
+            var userId = principal.FindFirstValue("sub")
+                        ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null) return Results.Unauthorized();
             var item = await db.HistorialExcels
                 .FirstOrDefaultAsync(h => h.Id == id && h.UserId == userId);
 

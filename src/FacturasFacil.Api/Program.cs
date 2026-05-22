@@ -41,6 +41,9 @@ builder.Services.AddAuthentication(opt =>
 })
 .AddJwtBearer(opt =>
 {
+    // Sin esto, ASP.NET Core mapea "sub" → NameIdentifier y los endpoints no
+    // encuentran el claim con FindFirstValue("sub") → userId null → 500
+    opt.MapInboundClaims = false;
     opt.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
