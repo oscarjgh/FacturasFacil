@@ -9,8 +9,9 @@ obj/
 *.db-shm
 *.db-wal
 
-## Excels generados
-ResultadoExcel/*/
+## Carpetas de datos (solo se crean en ejecución)
+Facturas/
+ResultadoExcel/
 
 ## Secretos (NUNCA subir)
 appsettings.local.json
