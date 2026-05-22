@@ -48,6 +48,7 @@ public static class PlanesEndpoints
         // Crear sesión de pago Stripe
         g.MapPost("/pagos/checkout", async (
             CheckoutRequest req,
+            HttpRequest httpReq,
             ClaimsPrincipal principal,
             UserManager<ApplicationUser> um,
             AppDbContext db,
@@ -92,13 +93,17 @@ public static class PlanesEndpoints
                     await um.UpdateAsync(user);
                 }
 
+                // Base URL: variable de entorno o se detecta del request
+                var baseUrl = config["Stripe:SuccessUrl"]?.TrimEnd('/')
+                              ?? $"{httpReq.Scheme}://{httpReq.Host}";
+
                 var options = new SessionCreateOptions
                 {
                     Customer  = user.StripeCustomerId,
                     Mode      = "subscription",
                     LineItems = [new SessionLineItemOptions { Price = plan.StripePriceId, Quantity = 1 }],
-                    SuccessUrl = (config["Stripe:SuccessUrl"] ?? "/") + "?session_id={CHECKOUT_SESSION_ID}",
-                    CancelUrl  =  config["Stripe:CancelUrl"]  ?? "/planes",
+                    SuccessUrl = baseUrl + "?session_id={CHECKOUT_SESSION_ID}",
+                    CancelUrl  = config["Stripe:CancelUrl"]?.TrimEnd('/') ?? baseUrl,
                     Metadata   = new Dictionary<string, string>
                     {
                         ["userId"] = userId,
