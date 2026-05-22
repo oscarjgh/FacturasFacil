@@ -21,6 +21,22 @@ public record AuthResponse(
     DateTime Expira,
     DateTime? SuscripcionVence);
 
+public record ForgotPasswordRequest(string Email);
+public record ResetPasswordRequest(string Email, string Token, string NuevaPassword);
+
+public record AdminUsuarioResponse(
+    string Id,
+    string Email,
+    string NombreCompleto,
+    string? Empresa,
+    string Plan,
+    int PlanId,
+    DateTime FechaRegistro,
+    DateTime? SuscripcionVence,
+    bool IsAdmin);
+
+public record CambiarPlanRequest(int PlanId);
+
 public record UsuarioInfoResponse(
     string Email,
     string NombreCompleto,
@@ -30,4 +46,5 @@ public record UsuarioInfoResponse(
     int LimiteFacturasMes,
     int FacturasUsadasEsteMes,
     DateTime FechaRegistro,
-    DateTime? SuscripcionVence);
+    DateTime? SuscripcionVence,
+    bool IsAdmin);

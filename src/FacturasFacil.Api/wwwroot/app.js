@@ -23,18 +23,40 @@ function showPage(name) {
   if (name === 'dashboard') loadDashboard();
   if (name === 'historial')  loadHistorial();
   if (name === 'planes')     loadPlanes();
+  if (name === 'admin')      loadAdmin();
   window.scrollTo(0, 0);
 }
 
 function updateNav() {
   const loggedIn = !!token;
+  const isAdmin  = userInfo?.isAdmin === true;
   setVis('navDashboard', loggedIn);
   setVis('navHistorial',  loggedIn);
   setVis('navValidar',    loggedIn);
+  setVis('navAdmin',      loggedIn && isAdmin);
   setVis('navLogout',     loggedIn);
   setVis('navLogin',      !loggedIn);
   setVis('navRegister',   !loggedIn);
 }
+
+/* ── DARK MODE ───────────────────────────────── */
+function toggleDarkMode() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = dark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('ff_theme', next);
+  document.getElementById('btnDarkMode').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+// Aplicar tema guardado al cargar
+(function() {
+  const saved = localStorage.getItem('ff_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  // El botón se actualiza después de que el DOM cargue
+  window.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('btnDarkMode');
+    if (btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+  });
+})();
 
 function setVis(id, show) {
   const el = document.getElementById(id);
@@ -132,6 +154,11 @@ function logout() {
 
 function saveSession(data) {
   token    = data.token;
+  // Decodificar isAdmin del JWT
+  try {
+    const payload = JSON.parse(atob(data.token.split('.')[1]));
+    data.isAdmin = payload.isAdmin === 'true';
+  } catch { data.isAdmin = false; }
   userInfo = data;
   localStorage.setItem('ff_token', token);
   localStorage.setItem('ff_user',  JSON.stringify(data));
@@ -143,9 +170,10 @@ async function refreshUserInfo() {
   const res = await apiFetch('/api/auth/me');
   if (!res || !res.ok) return;
   const data = await res.json();
-  // Mezclar datos frescos en userInfo conservando el token
-  userInfo = { ...userInfo, ...data, plan: data.plan, planId: data.planId, suscripcionVence: data.suscripcionVence };
+  userInfo = { ...userInfo, ...data, plan: data.plan, planId: data.planId,
+               suscripcionVence: data.suscripcionVence, isAdmin: data.isAdmin };
   localStorage.setItem('ff_user', JSON.stringify(userInfo));
+  updateNav();
 }
 
 /* ── DASHBOARD ──────────────────────────────────── */
@@ -491,25 +519,146 @@ function setLoading(id, loading, text) {
   btn.textContent = text;
 }
 
+/* ── RECUPERACIÓN DE CONTRASEÑA ─────────────────── */
+async function forgotPassword() {
+  const email  = document.getElementById('forgotEmail').value.trim();
+  const errEl  = document.getElementById('forgotError');
+  const okEl   = document.getElementById('forgotSuccess');
+  errEl.classList.add('hidden'); okEl.classList.add('hidden');
+  if (!email) { showError(errEl, 'Ingresa tu correo.'); return; }
+
+  setLoading('btnForgot', true, 'Enviando...');
+  try {
+    const res  = await fetch(`${API}/api/auth/forgot-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await safeJson(res);
+    if (!res.ok) { showError(errEl, data.error || 'Error.'); return; }
+    okEl.textContent = data.mensaje;
+    okEl.classList.remove('hidden');
+    document.getElementById('forgotEmail').value = '';
+  } catch (err) { showError(errEl, `Error de conexión: ${err.message}`); }
+  finally { setLoading('btnForgot', false, 'Enviar enlace'); }
+}
+
+// Datos del reset (email y token de la URL)
+let _resetEmail = '', _resetToken = '';
+
+async function resetPassword() {
+  const pass1  = document.getElementById('resetPassword').value;
+  const pass2  = document.getElementById('resetPassword2').value;
+  const errEl  = document.getElementById('resetError');
+  const okEl   = document.getElementById('resetSuccess');
+  errEl.classList.add('hidden'); okEl.classList.add('hidden');
+
+  if (pass1.length < 8) { showError(errEl, 'Mínimo 8 caracteres.'); return; }
+  if (pass1 !== pass2)  { showError(errEl, 'Las contraseñas no coinciden.'); return; }
+
+  setLoading('btnReset', true, 'Guardando...');
+  try {
+    const res  = await fetch(`${API}/api/auth/reset-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: _resetEmail, token: _resetToken, nuevaPassword: pass1 })
+    });
+    const data = await safeJson(res);
+    if (!res.ok) { showError(errEl, data.error || 'Enlace inválido o expirado.'); return; }
+    okEl.textContent = '✅ Contraseña actualizada. Ya puedes iniciar sesión.';
+    okEl.classList.remove('hidden');
+    document.getElementById('resetPassword').value  = '';
+    document.getElementById('resetPassword2').value = '';
+    setTimeout(() => showPage('login'), 2000);
+  } catch (err) { showError(errEl, `Error: ${err.message}`); }
+  finally { setLoading('btnReset', false, 'Guardar contraseña'); }
+}
+
+/* ── ADMIN PANEL ─────────────────────────────────── */
+async function loadAdmin() {
+  // Stats
+  const sRes = await apiFetch('/api/admin/stats');
+  if (sRes?.ok) {
+    const s = await sRes.json();
+    document.getElementById('statUsuarios').textContent = s.totalUsuarios;
+    document.getElementById('statPago').textContent     = s.usuariosPago;
+    document.getElementById('statExcels').textContent   = s.totalExcels;
+    document.getElementById('statFacturas').textContent = s.totalFacturas.toLocaleString('es-MX');
+  }
+
+  // Planes para el selector
+  const pRes = await fetch(`${API}/api/planes`);
+  const planes = pRes.ok ? await pRes.json() : [];
+
+  // Usuarios
+  const uRes = await apiFetch('/api/admin/usuarios');
+  const tabla = document.getElementById('adminTabla');
+  if (!uRes?.ok) { tabla.innerHTML = '<p class="text-muted">Error cargando usuarios.</p>'; return; }
+  const usuarios = await uRes.json();
+
+  const opciones = planes.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+
+  tabla.innerHTML = `
+    <div class="admin-table-wrap">
+    <table class="hist-table">
+      <thead><tr>
+        <th>Email</th><th>Nombre</th><th>Plan</th><th>Registro</th><th>Admin</th><th>Cambiar plan</th>
+      </tr></thead>
+      <tbody>
+        ${usuarios.map(u => `
+          <tr>
+            <td>${u.email}</td>
+            <td>${u.nombreCompleto}</td>
+            <td><span class="badge-plan">${u.plan}</span></td>
+            <td>${formatFecha(u.fechaRegistro)}</td>
+            <td><span class="${u.isAdmin ? 'badge-admin' : 'badge-user'}">${u.isAdmin ? '⚙️ Admin' : 'Usuario'}</span></td>
+            <td>
+              <select id="sel_${u.id}" class="select-sm">
+                ${planes.map(p => `<option value="${p.id}" ${p.id === u.planId ? 'selected' : ''}>${p.nombre}</option>`).join('')}
+              </select>
+              <button class="hist-dl-btn" onclick="cambiarPlan('${u.id}')">Aplicar</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+
+async function cambiarPlan(userId) {
+  const planId = parseInt(document.getElementById(`sel_${userId}`).value);
+  const res = await apiFetch(`/api/admin/usuarios/${userId}/plan`, {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ planId })
+  });
+  const data = await safeJson(res);
+  if (res?.ok) { alert(`✅ ${data.mensaje}`); loadAdmin(); }
+  else alert(`❌ ${data?.error || 'Error'}`);
+}
+
 /* ── INIT ────────────────────────────────────────── */
 updateNav();
 
-// Detectar regreso desde Stripe (success_url trae ?session_id=...)
+// Detectar parámetros especiales en la URL
 (async () => {
   const params = new URLSearchParams(window.location.search);
+
+  // Regreso desde Stripe (?session_id=...)
   if (params.has('session_id') && token) {
-    // Limpiar la URL sin recargar la página
     window.history.replaceState({}, '', '/');
-    // Refrescar datos del usuario desde el servidor (el webhook ya actualizó el plan)
     await refreshUserInfo();
     showPage('dashboard');
-    // Mostrar banner de éxito
     const banner = document.createElement('div');
     banner.className = 'alert-success';
     banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:999;padding:1rem 2rem;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.2)';
     banner.textContent = '🎉 ¡Pago exitoso! Tu plan ha sido actualizado.';
     document.body.appendChild(banner);
     setTimeout(() => banner.remove(), 5000);
+
+  // Enlace de reset de contraseña (?reset=1&email=...&token=...)
+  } else if (params.has('reset')) {
+    _resetEmail = params.get('email') || '';
+    _resetToken = params.get('token') || '';
+    window.history.replaceState({}, '', '/');
+    showPage('reset');
+
   } else if (token) {
     showPage('dashboard');
   }

@@ -15,9 +15,11 @@
       <a href="#" onclick="showPage('historial')" id="navHistorial" class="hidden">Historial</a>
       <a href="#" onclick="showPage('validar')" id="navValidar" class="hidden">Validar SAT</a>
       <a href="#" onclick="showPage('planes')">Planes</a>
+      <a href="#" onclick="showPage('admin')" id="navAdmin" class="hidden">⚙️ Admin</a>
       <a href="#" onclick="logout()" id="navLogout" class="hidden btn-outline-sm">Cerrar sesión</a>
       <a href="#" onclick="showPage('login')" id="navLogin" class="btn-primary-sm">Iniciar sesión</a>
       <a href="#" onclick="showPage('register')" id="navRegister" class="btn-outline-sm">Registrarse</a>
+      <button onclick="toggleDarkMode()" id="btnDarkMode" class="btn-icon" title="Modo oscuro">🌙</button>
     </div>
   </nav>
 
@@ -30,7 +32,33 @@
       <input type="password" id="loginPassword" placeholder="Contraseña" class="input-field"
              onkeydown="if(event.key==='Enter') login()"/>
       <button onclick="login()" class="btn-primary w-full" id="btnLogin">Entrar</button>
+      <p class="text-center mt-1"><a href="#" onclick="showPage('forgot')">¿Olvidaste tu contraseña?</a></p>
       <p class="text-center mt-1">¿No tienes cuenta? <a href="#" onclick="showPage('register')">Regístrate gratis</a></p>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div id="page-forgot" class="page hidden">
+    <div class="auth-card">
+      <h2>Recuperar contraseña</h2>
+      <p class="text-muted mb-1">Te enviaremos un enlace a tu correo.</p>
+      <div id="forgotError"   class="alert-error   hidden"></div>
+      <div id="forgotSuccess" class="alert-success hidden"></div>
+      <input type="email" id="forgotEmail" placeholder="Correo electrónico" class="input-field"/>
+      <button onclick="forgotPassword()" class="btn-primary w-full" id="btnForgot">Enviar enlace</button>
+      <p class="text-center mt-1"><a href="#" onclick="showPage('login')">← Volver al login</a></p>
+    </div>
+  </div>
+
+  <!-- RESET PASSWORD -->
+  <div id="page-reset" class="page hidden">
+    <div class="auth-card">
+      <h2>Nueva contraseña</h2>
+      <div id="resetError"   class="alert-error   hidden"></div>
+      <div id="resetSuccess" class="alert-success hidden"></div>
+      <input type="password" id="resetPassword"  placeholder="Nueva contraseña (mín. 8 caracteres)" class="input-field"/>
+      <input type="password" id="resetPassword2" placeholder="Confirmar contraseña" class="input-field"/>
+      <button onclick="resetPassword()" class="btn-primary w-full" id="btnReset">Guardar contraseña</button>
     </div>
   </div>
 
@@ -153,6 +181,27 @@
         <div class="feature">✅ Validación SAT</div>
         <div class="feature">✅ Historial de descargas</div>
         <div class="feature">✅ 3 hojas: Facturas, Resumen, Conceptos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="page-admin" class="page hidden">
+    <div class="container">
+      <h2>⚙️ Panel de Administración</h2>
+
+      <!-- Stats -->
+      <div class="admin-stats" id="adminStats">
+        <div class="stat-card"><div class="stat-num" id="statUsuarios">—</div><div class="stat-label">Usuarios totales</div></div>
+        <div class="stat-card"><div class="stat-num" id="statPago">—</div><div class="stat-label">Con plan de pago</div></div>
+        <div class="stat-card"><div class="stat-num" id="statExcels">—</div><div class="stat-label">Excels generados</div></div>
+        <div class="stat-card"><div class="stat-num" id="statFacturas">—</div><div class="stat-label">Facturas procesadas</div></div>
+      </div>
+
+      <!-- Tabla usuarios -->
+      <div class="card mt-1">
+        <h3>👥 Usuarios</h3>
+        <div id="adminTabla"><p class="text-muted">Cargando...</p></div>
       </div>
     </div>
   </div>

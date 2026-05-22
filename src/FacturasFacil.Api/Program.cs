@@ -76,6 +76,7 @@ StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 // ── Servicios propios ──────────────────────────────────────────
 builder.Services.AddScoped<FacturasFacil.Api.Services.TokenService>();
 builder.Services.AddScoped<UsoService>();
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddHttpClient<SatValidacionService>();
 
 // ── Swagger ────────────────────────────────────────────────────
@@ -108,5 +109,6 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapPlanesEndpoints();
 app.MapFacturasEndpoints();
+app.MapAdminEndpoints();
 
 app.Run();

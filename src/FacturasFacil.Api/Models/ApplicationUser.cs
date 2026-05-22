@@ -15,6 +15,8 @@ public class ApplicationUser : IdentityUser
     public string? StripeSubscriptionId { get; set; }
     public DateTime? SuscripcionVence { get; set; }
 
+    public bool IsAdmin { get; set; } = false;
+
     public ICollection<UsoMensual> UsosMensuales { get; set; } = [];
     public ICollection<HistorialExcel> HistorialExcels { get; set; } = [];
 }

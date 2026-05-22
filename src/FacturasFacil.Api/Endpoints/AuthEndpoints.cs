@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FacturasFacil.Api.Data;
@@ -23,13 +24,17 @@ public static class AuthEndpoints
             if (await um.FindByEmailAsync(req.Email) != null)
                 return Results.BadRequest(new { error = "El email ya está registrado." });
 
+            // El primer usuario registrado es admin automáticamente
+            var esElPrimero = !await um.Users.AnyAsync();
+
             var user = new ApplicationUser
             {
                 UserName = req.Email,
                 Email = req.Email,
                 NombreCompleto = req.NombreCompleto,
                 Empresa = req.Empresa,
-                PlanId = 1
+                PlanId = 1,
+                IsAdmin = esElPrimero
             };
 
             var result = await um.CreateAsync(user, req.Password);
@@ -88,8 +93,44 @@ public static class AuthEndpoints
                 user.Email!, user.NombreCompleto, user.Empresa,
                 user.Plan.Nombre, user.PlanId,
                 user.Plan.LimiteFacturasMes, uso.FacturasProcesadas,
-                user.FechaRegistro, user.SuscripcionVence));
+                user.FechaRegistro, user.SuscripcionVence, user.IsAdmin));
         }).RequireAuthorization();
+
+        // Solicitar recuperación de contraseña
+        g.MapPost("/forgot-password", async (
+            ForgotPasswordRequest req,
+            UserManager<ApplicationUser> um,
+            EmailService emailSvc,
+            IConfiguration config,
+            HttpRequest httpReq) =>
+        {
+            // Siempre devolver OK para no revelar si el email existe
+            var user = await um.FindByEmailAsync(req.Email);
+            if (user != null)
+            {
+                var resetToken = await um.GeneratePasswordResetTokenAsync(user);
+                var baseUrl = config["App:BaseUrl"]
+                              ?? $"{httpReq.Scheme}://{httpReq.Host}";
+                var resetUrl = $"{baseUrl}?reset=1&email={Uri.EscapeDataString(req.Email)}&token={Uri.EscapeDataString(resetToken)}";
+                await emailSvc.EnviarRecuperacionPasswordAsync(user.Email!, user.NombreCompleto, resetUrl);
+            }
+            return Results.Ok(new { mensaje = "Si el email existe, recibirás un enlace en breve." });
+        });
+
+        // Restablecer contraseña con token
+        g.MapPost("/reset-password", async (
+            ResetPasswordRequest req,
+            UserManager<ApplicationUser> um) =>
+        {
+            var user = await um.FindByEmailAsync(req.Email);
+            if (user == null) return Results.BadRequest(new { error = "Enlace inválido o expirado." });
+
+            var result = await um.ResetPasswordAsync(user, req.Token, req.NuevaPassword);
+            if (!result.Succeeded)
+                return Results.BadRequest(new { error = result.Errors.First().Description });
+
+            return Results.Ok(new { mensaje = "Contraseña restablecida correctamente." });
+        });
 
         return app;
     }
