@@ -19,8 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             e.HasKey(p => p.Id);
             e.Property(p => p.Nombre).HasMaxLength(50).IsRequired();
-            // SQLite no tiene decimal nativo; se guarda como TEXT numérico
-            e.Property(p => p.PrecioMensual).HasColumnType("TEXT");
+            e.Property(p => p.PrecioMensual).HasColumnType("numeric(10,2)");
             e.Property(p => p.Caracteristicas).HasConversion(
                 v => string.Join("|", v),
                 v => v.Split("|", StringSplitOptions.RemoveEmptyEntries));

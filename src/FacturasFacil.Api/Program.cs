@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using FacturasFacil.Api.Data;
@@ -15,10 +16,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(k =>
     k.Limits.MaxRequestBodySize = 50 * 1024 * 1024);
 
-// ── Base de datos (SQLite local y en Railway; fácil de cambiar a SQL Server) ──
-var dbPath = builder.Configuration.GetConnectionString("Default")
-             ?? $"Data Source={Path.Combine(builder.Environment.ContentRootPath, "facturasfacil.db")}";
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite(dbPath));
+// ── Base de datos (PostgreSQL en Railway; local con cadena de conexión) ──
+// Railway inyecta DATABASE_URL en formato postgresql://user:pass@host:port/db
+var connStr = Environment.GetEnvironmentVariable("DATABASE_URL")
+              ?? builder.Configuration.GetConnectionString("Default")
+              ?? "Host=localhost;Database=facturasfacil;Username=postgres;Password=postgres";
+
+// Convertir formato URL de Railway a formato Npgsql si es necesario
+if (connStr.StartsWith("postgresql://") || connStr.StartsWith("postgres://"))
+{
+    var uri    = new Uri(connStr);
+    var parts  = uri.UserInfo.Split(':', 2);
+    connStr = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};" +
+              $"Username={parts[0]};Password={parts[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connStr));
 
 // ── Identity ───────────────────────────────────────────────────
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(opt =>
