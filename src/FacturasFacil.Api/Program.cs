@@ -11,6 +11,10 @@ using FacturasFacil.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Límite de upload: 50 MB (Railway proxy admite hasta ~100 MB)
+builder.WebHost.ConfigureKestrel(k =>
+    k.Limits.MaxRequestBodySize = 50 * 1024 * 1024);
+
 // ── Base de datos (SQLite local y en Railway; fácil de cambiar a SQL Server) ──
 var dbPath = builder.Configuration.GetConnectionString("Default")
              ?? $"Data Source={Path.Combine(builder.Environment.ContentRootPath, "facturasfacil.db")}";

@@ -53,6 +53,18 @@ async function apiFetch(path, opts = {}) {
   return res;
 }
 
+// Parsea JSON de forma segura; si el servidor devuelve HTML (error 500)
+// devuelve un objeto con el mensaje de error en lugar de lanzar excepción
+async function safeJson(res) {
+  const ct = res.headers.get('content-type') || '';
+  if (ct.includes('application/json')) return res.json();
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch {
+    return { error: `Error del servidor (${res.status})${text ? ': ' + text.substring(0, 300) : ''}` };
+  }
+}
+
 /* ── AUTH ────────────────────────────────────────── */
 async function login() {
   const email    = document.getElementById('loginEmail').value.trim();
@@ -266,14 +278,14 @@ async function procesar() {
     if (!res) return;
 
     if (res.status === 402) {
-      const data = await res.json();
+      const data = await safeJson(res);
       showError(errEl, `${data.error} <a href="#" onclick="showPage('planes')">Ver planes →</a>`);
       return;
     }
 
     if (!res.ok) {
-      const data = await res.json();
-      showError(errEl, data.error || 'Error al procesar los archivos.');
+      const data = await safeJson(res);
+      showError(errEl, data.error || `Error del servidor (${res.status}). Revisa los logs.`);
       return;
     }
 
@@ -294,7 +306,7 @@ async function procesar() {
 
   } catch (err) {
     clearInterval(interval);
-    showError(errEl, 'Error de conexión con el servidor.');
+    showError(errEl, `Error de conexión: ${err.message || err}`);
   } finally {
     progress.classList.add('hidden');
     fill.style.width = '0%';
@@ -393,12 +405,13 @@ async function contratarPlan(planId) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ planId })
     });
-    if (!res) return;
-    const data = await res.json();
+    if (!res) return; // 401 → logout ya ejecutado
+    const data = await safeJson(res);
+    if (!res.ok) { alert(`⚠️ ${data.error || 'Error al iniciar el pago.'}`); return; }
     if (data.url) window.location.href = data.url;
-    else alert('No se pudo crear la sesión de pago. Verifica la configuración de Stripe.');
-  } catch {
-    alert('Error de conexión al iniciar el pago.');
+    else alert('No se recibió URL de pago. Verifica la configuración de Stripe.');
+  } catch (err) {
+    alert(`Error de conexión: ${err.message || err}`);
   }
 }
 

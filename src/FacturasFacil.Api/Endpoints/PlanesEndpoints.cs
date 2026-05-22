@@ -50,48 +50,68 @@ public static class PlanesEndpoints
             AppDbContext db,
             IConfiguration config) =>
         {
-            var userId = principal.FindFirstValue("sub")!;
-            var user = await um.FindByIdAsync(userId);
-            var plan = await db.Planes.FindAsync(req.PlanId);
-
-            if (plan == null || plan.StripePriceId == null)
-                return Results.BadRequest(new { error = "Plan no válido o no tiene precio configurado." });
-
-            // Crear o recuperar customer en Stripe
-            if (string.IsNullOrEmpty(user!.StripeCustomerId))
-            {
-                var custSvc = new Stripe.CustomerService();
-                var customer = await custSvc.CreateAsync(new Stripe.CustomerCreateOptions
+            // Verificar que Stripe esté configurado
+            var stripeKey = config["Stripe:SecretKey"] ?? "";
+            if (string.IsNullOrWhiteSpace(stripeKey) ||
+                stripeKey.Contains("TU_CLAVE") || stripeKey == "sk_test_")
+                return Results.BadRequest(new
                 {
-                    Email = user.Email,
-                    Name = user.NombreCompleto,
-                    Metadata = new Dictionary<string, string> { ["userId"] = userId }
+                    error = "Los pagos aún no están configurados en este servidor. " +
+                            "Contacta al administrador para activar Stripe."
                 });
-                user.StripeCustomerId = customer.Id;
-                await um.UpdateAsync(user);
-            }
 
-            var options = new SessionCreateOptions
+            var userId = principal.FindFirstValue("sub")!;
+            var user   = await um.FindByIdAsync(userId);
+            var plan   = await db.Planes.FindAsync(req.PlanId);
+
+            if (plan == null || string.IsNullOrEmpty(plan.StripePriceId) ||
+                plan.StripePriceId.Contains("_ID"))
+                return Results.BadRequest(new
+                {
+                    error = "Este plan aún no tiene precio configurado en Stripe."
+                });
+
+            try
             {
-                Customer = user.StripeCustomerId,
-                Mode = "subscription",
-                LineItems = [new SessionLineItemOptions
+                // Crear o recuperar customer en Stripe
+                if (string.IsNullOrEmpty(user!.StripeCustomerId))
                 {
-                    Price = plan.StripePriceId,
-                    Quantity = 1
-                }],
-                SuccessUrl = config["Stripe:SuccessUrl"] + "?session_id={CHECKOUT_SESSION_ID}",
-                CancelUrl = config["Stripe:CancelUrl"],
-                Metadata = new Dictionary<string, string>
-                {
-                    ["userId"] = userId,
-                    ["planId"] = plan.Id.ToString()
+                    var custSvc  = new Stripe.CustomerService();
+                    var customer = await custSvc.CreateAsync(new Stripe.CustomerCreateOptions
+                    {
+                        Email    = user.Email,
+                        Name     = user.NombreCompleto,
+                        Metadata = new Dictionary<string, string> { ["userId"] = userId }
+                    });
+                    user.StripeCustomerId = customer.Id;
+                    await um.UpdateAsync(user);
                 }
-            };
 
-            var sessionSvc = new SessionService();
-            var session = await sessionSvc.CreateAsync(options);
-            return Results.Ok(new CheckoutResponse(session.Url!));
+                var options = new SessionCreateOptions
+                {
+                    Customer  = user.StripeCustomerId,
+                    Mode      = "subscription",
+                    LineItems = [new SessionLineItemOptions { Price = plan.StripePriceId, Quantity = 1 }],
+                    SuccessUrl = (config["Stripe:SuccessUrl"] ?? "/") + "?session_id={CHECKOUT_SESSION_ID}",
+                    CancelUrl  =  config["Stripe:CancelUrl"]  ?? "/planes",
+                    Metadata   = new Dictionary<string, string>
+                    {
+                        ["userId"] = userId,
+                        ["planId"] = plan.Id.ToString()
+                    }
+                };
+
+                var session = await new SessionService().CreateAsync(options);
+                return Results.Ok(new CheckoutResponse(session.Url!));
+            }
+            catch (Stripe.StripeException ex)
+            {
+                return Results.BadRequest(new { error = $"Error de Stripe: {ex.Message}" });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"Error inesperado: {ex.Message}", statusCode: 500);
+            }
         }).RequireAuthorization();
 
         // Webhook de Stripe
