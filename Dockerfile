@@ -27,10 +27,12 @@ COPY --from=build /app/out .
 ENV ASPNETCORE_URLS=http://+:${PORT:-5000}
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Carpeta persistente para la DB y los Excels generados
-VOLUME ["/data"]
-ENV ConnectionStrings__Default="Data Source=/data/facturasfacil.db"
-ENV Historial__CarpetaBase="/data/excels"
+# Railway monta el volumen en /data desde su dashboard (no usar VOLUME aquí)
+# Las variables se configuran en Railway → Variables:
+#   ConnectionStrings__Default = Data Source=/data/facturasfacil.db
+#   Historial__CarpetaBase     = /data/excels
+ENV ConnectionStrings__Default="Data Source=/app/facturasfacil.db"
+ENV Historial__CarpetaBase="/app/excels"
 
 EXPOSE 5000
 ENTRYPOINT ["dotnet", "FacturasFacil.Api.dll"]
