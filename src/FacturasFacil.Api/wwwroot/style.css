@@ -148,6 +148,12 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--gray
 .plan-features li { font-size: .88rem; color: var(--gray-600); }
 .plan-features li::before { content: "✓ "; color: var(--green); font-weight: 700; }
 .plan-btn     { margin-top: auto; }
+.plan-card.plan-activo { border-color: var(--green); box-shadow: 0 0 0 3px rgba(22,163,74,.15); }
+.plan-badge-actual { font-size: .82rem; font-weight: 700; color: var(--green); }
+.plan-vence        { font-size: .78rem; color: var(--gray-600); }
+.btn-disabled      { background: var(--gray-200) !important; color: var(--gray-600) !important; cursor: not-allowed !important; }
+.btn-outline       { background: transparent !important; border: 2px solid var(--blue) !important; color: var(--blue) !important; }
+.btn-outline:hover { background: var(--blue) !important; color: #fff !important; }
 
 /* HERO */
 .hero { max-width: 780px; margin: 5rem auto; padding: 0 1.5rem; text-align: center; }

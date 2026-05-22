@@ -40,7 +40,8 @@ public static class AuthEndpoints
             var userConPlan = await um.Users.Include(u => u.Plan).FirstAsync(u => u.Id == user.Id);
             var (token, expira) = ts.GenerarToken(userConPlan);
             return Results.Ok(new AuthResponse(token, userConPlan.Email!, userConPlan.NombreCompleto,
-                userConPlan.Plan.Nombre, userConPlan.Plan.LimiteFacturasMes, 0, expira));
+                userConPlan.Plan.Nombre, userConPlan.PlanId, userConPlan.Plan.LimiteFacturasMes,
+                0, expira, userConPlan.SuscripcionVence));
         });
 
         g.MapPost("/login", async (
@@ -65,8 +66,8 @@ public static class AuthEndpoints
 
             return Results.Ok(new AuthResponse(
                 token, user.Email!, user.NombreCompleto,
-                user.Plan.Nombre, user.Plan.LimiteFacturasMes,
-                uso.FacturasProcesadas, expira));
+                user.Plan.Nombre, user.PlanId, user.Plan.LimiteFacturasMes,
+                uso.FacturasProcesadas, expira, user.SuscripcionVence));
         });
 
         g.MapGet("/me", async (

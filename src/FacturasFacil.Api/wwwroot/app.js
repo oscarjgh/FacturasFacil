@@ -138,8 +138,21 @@ function saveSession(data) {
   updateNav();
 }
 
+/* ── REFRESH USER ───────────────────────────────── */
+async function refreshUserInfo() {
+  const res = await apiFetch('/api/auth/me');
+  if (!res || !res.ok) return;
+  const data = await res.json();
+  // Mezclar datos frescos en userInfo conservando el token
+  userInfo = { ...userInfo, ...data, plan: data.plan, planId: data.planId, suscripcionVence: data.suscripcionVence };
+  localStorage.setItem('ff_user', JSON.stringify(userInfo));
+}
+
 /* ── DASHBOARD ──────────────────────────────────── */
 async function loadDashboard() {
+  // Refrescar plan desde servidor (puede haber cambiado por pago)
+  await refreshUserInfo();
+
   // Nombre y plan
   if (userInfo) {
     document.getElementById('welcomeNombre').textContent = `¡Hola, ${userInfo.nombreCompleto?.split(' ')[0]}!`;
@@ -367,23 +380,49 @@ async function validarSat() {
 async function loadPlanes() {
   const grid = document.getElementById('planesGrid');
   try {
+    // Refrescar info del usuario para tener planId y suscripcionVence actualizados
+    if (token) await refreshUserInfo();
+
     const res  = await fetch(`${API}/api/planes`);
     const data = await res.json();
 
+    const planActualId = userInfo?.planId ?? 0;
+    const vence = userInfo?.suscripcionVence ? new Date(userInfo.suscripcionVence) : null;
+    const diasRestantes = vence ? Math.ceil((vence - new Date()) / (1000*60*60*24)) : null;
+    const proxRenovar = diasRestantes !== null && diasRestantes <= 7;
+
     grid.innerHTML = data.map((p, i) => {
-      const gratis  = p.precioMensual === 0;
-      const popular = i === 1;
-      const limite  = p.limiteFacturasMes === -1 ? 'Ilimitadas' : `${p.limiteFacturasMes.toLocaleString('es-MX')} facturas/mes`;
+      const gratis   = p.precioMensual === 0;
+      const popular  = i === 1;
+      const esMiPlan = token && p.id === planActualId;
+      const limite   = p.limiteFacturasMes === -1 ? 'Ilimitadas' : `${p.limiteFacturasMes.toLocaleString('es-MX')} facturas/mes`;
       const features = p.caracteristicas.map(c => `<li>${c}</li>`).join('');
-      const btnLabel = gratis ? 'Comenzar gratis' : token ? 'Contratar plan' : 'Registrarse';
-      const btnAction = gratis
-        ? `showPage('register')`
-        : token
-          ? `contratarPlan(${p.id})`
-          : `showPage('register')`;
+
+      let btnLabel, btnAction, btnClass, badgeHtml = '';
+
+      if (esMiPlan) {
+        badgeHtml = '<div class="plan-badge-actual">✅ Tu plan actual</div>';
+        if (vence) {
+          const fechaStr = vence.toLocaleDateString('es-MX', {day:'2-digit',month:'short',year:'numeric'});
+          badgeHtml += `<div class="plan-vence">Renueva el ${fechaStr}${proxRenovar ? ' ⚠️' : ''}</div>`;
+        }
+        if (proxRenovar || gratis) {
+          btnLabel = 'Plan actual'; btnAction = ''; btnClass = 'btn-disabled';
+        } else {
+          btnLabel = '🔄 Renovar plan'; btnAction = `contratarPlan(${p.id})`; btnClass = 'btn-outline';
+        }
+      } else if (!token) {
+        btnLabel = gratis ? 'Comenzar gratis' : 'Registrarse';
+        btnAction = `showPage('register')`; btnClass = 'btn-primary';
+      } else {
+        btnLabel = gratis ? 'Bajar a Gratis' : 'Cambiar a este plan';
+        btnAction = gratis ? '' : `contratarPlan(${p.id})`;
+        btnClass  = gratis ? 'btn-disabled' : 'btn-primary';
+      }
 
       return `
-        <div class="plan-card ${popular ? 'popular' : ''}">
+        <div class="plan-card ${popular ? 'popular' : ''} ${esMiPlan ? 'plan-activo' : ''}">
+          ${badgeHtml}
           <div class="plan-nombre">${p.nombre}</div>
           <div class="plan-precio">
             ${gratis ? 'Gratis' : `$${p.precioMensual.toLocaleString('es-MX')}`}
@@ -391,7 +430,8 @@ async function loadPlanes() {
           </div>
           <div class="plan-limite">📊 ${limite}</div>
           <ul class="plan-features">${features}</ul>
-          <button class="btn-primary plan-btn" onclick="${btnAction}">${btnLabel}</button>
+          <button class="btn-primary plan-btn ${btnClass}"
+            ${btnAction ? `onclick="${btnAction}"` : 'disabled'}>${btnLabel}</button>
         </div>`;
     }).join('');
   } catch {
@@ -453,5 +493,24 @@ function setLoading(id, loading, text) {
 
 /* ── INIT ────────────────────────────────────────── */
 updateNav();
-if (token) showPage('dashboard');
-// else ya se muestra page-home por defecto en el HTML
+
+// Detectar regreso desde Stripe (success_url trae ?session_id=...)
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('session_id') && token) {
+    // Limpiar la URL sin recargar la página
+    window.history.replaceState({}, '', '/');
+    // Refrescar datos del usuario desde el servidor (el webhook ya actualizó el plan)
+    await refreshUserInfo();
+    showPage('dashboard');
+    // Mostrar banner de éxito
+    const banner = document.createElement('div');
+    banner.className = 'alert-success';
+    banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:999;padding:1rem 2rem;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+    banner.textContent = '🎉 ¡Pago exitoso! Tu plan ha sido actualizado.';
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 5000);
+  } else if (token) {
+    showPage('dashboard');
+  }
+})();

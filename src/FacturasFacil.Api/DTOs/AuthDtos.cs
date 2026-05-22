@@ -15,9 +15,11 @@ public record AuthResponse(
     string Email,
     string NombreCompleto,
     string Plan,
+    int PlanId,
     int LimiteFacturasMes,
     int FacturasUsadasEsteMes,
-    DateTime Expira);
+    DateTime Expira,
+    DateTime? SuscripcionVence);
 
 public record UsuarioInfoResponse(
     string Email,
