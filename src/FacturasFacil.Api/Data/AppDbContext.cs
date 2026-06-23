@@ -56,14 +56,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             {
                 Id = 2, Nombre = "Contador", Descripcion = "Para contadores independientes",
                 LimiteFacturasMes = 2000, PrecioMensual = 199,
-                StripePriceId = "price_1TZhohEIUe6HZv681DUf6IjX",
+                StripePriceId = "price_1TlatoCwvjjboLFxt0ZAdhjZ",
                 Caracteristicas = ["2,000 facturas/mes", "Historial 6 meses", "Validación SAT", "Soporte prioritario"]
             },
             new Plan
             {
                 Id = 3, Nombre = "Despacho", Descripcion = "Para despachos contables",
                 LimiteFacturasMes = -1, PrecioMensual = 499,
-                StripePriceId = "price_1TZhqnEIUe6HZv68vqfRf9g9",
+                StripePriceId = "price_1TlaxyCwvjjboLFxIZUyVs9v",
                 Caracteristicas = ["Facturas ilimitadas", "Historial completo", "Validación SAT", "Soporte 24/7", "Múltiples usuarios (próximamente)"]
             }
         );
