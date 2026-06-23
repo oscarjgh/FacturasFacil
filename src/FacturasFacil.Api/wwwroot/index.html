@@ -167,22 +167,153 @@
 
   <!-- HOME / LANDING -->
   <div id="page-home" class="page">
-    <div class="hero">
-      <div class="hero-badge">🇲🇽 Diseñado para México · CFDI 3.3 y 4.0</div>
+
+    <!-- HERO -->
+    <section class="landing-hero">
+      <div class="landing-badge">🇲🇽 Diseñado para México · CFDI 3.3 y 4.0</div>
       <h1>De ZIP caótico a<br/><span class="accent">Excel ordenado</span> en segundos</h1>
-      <p class="hero-sub">Sube tus archivos comprimidos con facturas electrónicas y descarga un Excel perfecto, ordenado por fecha, listo para tu contabilidad.</p>
-      <div class="hero-buttons">
+      <p class="landing-sub">Sube tus facturas comprimidas y descarga un Excel perfecto, ordenado por fecha, listo para tu contabilidad.</p>
+      <div class="landing-btns">
         <button onclick="showPage('register')" class="btn-primary btn-lg">Comenzar gratis</button>
-        <button onclick="showPage('planes')"   class="btn-outline  btn-lg">Ver planes y precios</button>
+        <button onclick="showPage('planes')"   class="btn-outline  btn-lg">Ver planes</button>
       </div>
-      <div class="hero-features">
-        <div class="feature">✅ CFDI 3.3 y 4.0</div>
-        <div class="feature">✅ ZIP y RAR</div>
-        <div class="feature">✅ Validación SAT</div>
-        <div class="feature">✅ Historial de descargas</div>
-        <div class="feature">✅ 3 hojas: Facturas, Resumen, Conceptos</div>
+      <p class="landing-note">Sin tarjeta de crédito · 30 facturas gratis/mes</p>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="landing-section">
+      <div class="container">
+        <div class="landing-grid-3">
+          <div class="landing-card">
+            <div class="landing-icon">📦</div>
+            <h3>ZIP y RAR</h3>
+            <p>Arrastra tus comprimidos y procesa cientos de XMLs a la vez sin esfuerzo</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">📊</div>
+            <h3>Excel perfecto</h3>
+            <p>3 hojas: Facturas, Resumen y Conceptos. Ordenado por fecha automáticamente</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">🔍</div>
+            <h3>Validación SAT</h3>
+            <p>Consulta el estado oficial de cualquier CFDI directamente en el portal del SAT</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">📁</div>
+            <h3>Historial</h3>
+            <p>Todos tus Excels guardados en la nube, descargables en cualquier momento</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">⚡</div>
+            <h3>CFDI 3.3 y 4.0</h3>
+            <p>Compatible con todas las versiones de facturas electrónicas del SAT</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">🔒</div>
+            <h3>Seguro</h3>
+            <p>Tus datos cifrados y protegidos. Solo tú accedes a tus archivos</p>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- CÓMO FUNCIONA -->
+    <section class="landing-section landing-section-alt">
+      <div class="container">
+        <h2 class="text-center">Cómo funciona</h2>
+        <p class="text-center text-muted mb-2">Tres pasos y listo</p>
+        <div class="landing-steps">
+          <div class="landing-step">
+            <div class="step-num">1</div>
+            <h3>Sube tu ZIP o RAR</h3>
+            <p class="text-muted">Con todos tus XMLs de facturas adentro</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="landing-step">
+            <div class="step-num">2</div>
+            <h3>Procesamos los CFDI</h3>
+            <p class="text-muted">Leemos, validamos y ordenamos cada factura</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="landing-step">
+            <div class="step-num">3</div>
+            <h3>Descarga tu Excel</h3>
+            <p class="text-muted">Listo para tu contabilidad o declaración</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIOS -->
+    <section class="landing-section">
+      <div class="container">
+        <h2 class="text-center">Lo que dicen nuestros usuarios</h2>
+        <div class="landing-grid-2 mt-1">
+          <div class="testimonio-card">
+            <p class="testimonio-texto">"Antes tardaba 2 horas capturando facturas en Excel. Ahora lo hago en 30 segundos."</p>
+            <div class="testimonio-autor">
+              <div class="testimonio-avatar">MG</div>
+              <div>
+                <strong>María G.</strong>
+                <span class="text-muted">Contadora independiente</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonio-card">
+            <p class="testimonio-texto">"Proceso las facturas de 50 clientes cada mes. FacturasFacil me ahorró un empleado."</p>
+            <div class="testimonio-autor">
+              <div class="testimonio-avatar">RL</div>
+              <div>
+                <strong>Roberto L.</strong>
+                <span class="text-muted">Despacho contable, CDMX</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLANES RESUMEN -->
+    <section class="landing-section landing-section-alt">
+      <div class="container">
+        <h2 class="text-center">Planes y precios</h2>
+        <p class="text-center text-muted mb-2">Empieza gratis, escala cuando lo necesites</p>
+        <div class="landing-grid-3">
+          <div class="landing-plan-card">
+            <div class="plan-nombre">Gratis</div>
+            <div class="landing-precio">$0 <span>/mes</span></div>
+            <div class="plan-limite">30 facturas/mes</div>
+            <ul class="plan-features"><li>Descarga en Excel</li><li>Historial 1 mes</li><li>Soporte por email</li></ul>
+            <button onclick="showPage('register')" class="btn-outline w-full">Comenzar gratis</button>
+          </div>
+          <div class="landing-plan-card landing-plan-popular">
+            <div class="landing-popular-badge">Más popular</div>
+            <div class="plan-nombre">Contador</div>
+            <div class="landing-precio">$199 <span>/mes MXN</span></div>
+            <div class="plan-limite">2,000 facturas/mes</div>
+            <ul class="plan-features"><li>Historial 6 meses</li><li>Validación SAT</li><li>Soporte prioritario</li></ul>
+            <button onclick="showPage('register')" class="btn-primary w-full">Contratar</button>
+          </div>
+          <div class="landing-plan-card">
+            <div class="plan-nombre">Despacho</div>
+            <div class="landing-precio">$499 <span>/mes MXN</span></div>
+            <div class="plan-limite">Ilimitadas</div>
+            <ul class="plan-features"><li>Historial completo</li><li>Validación SAT</li><li>Soporte 24/7</li></ul>
+            <button onclick="showPage('register')" class="btn-outline w-full">Contratar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="landing-cta">
+      <h2>¿Listo para ahorrar horas cada mes?</h2>
+      <p>Únete a contadores y despachos que ya automatizan su proceso de facturas</p>
+      <button onclick="showPage('register')" class="btn-primary btn-lg">Crear cuenta gratis</button>
+      <p class="landing-note">Sin tarjeta · Cancela cuando quieras</p>
+    </section>
+
   </div>
 
   <!-- ADMIN -->
