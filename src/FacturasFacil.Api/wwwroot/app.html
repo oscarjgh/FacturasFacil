@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FacturasFacil — Procesador CFDI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand" onclick="showPage('home')" style="cursor:pointer">⚡ FacturasFacil</div>
+    <div class="nav-links">
+      <a href="#" onclick="showPage('dashboard')" id="navDashboard" class="hidden">Dashboard</a>
+      <a href="#" onclick="showPage('historial')" id="navHistorial" class="hidden">Historial</a>
+      <a href="#" onclick="showPage('validar')" id="navValidar" class="hidden">Validar SAT</a>
+      <a href="#" onclick="showPage('planes')">Planes</a>
+      <a href="#" onclick="showPage('admin')" id="navAdmin" class="hidden">⚙️ Admin</a>
+      <a href="#" onclick="logout()" id="navLogout" class="hidden btn-outline-sm">Cerrar sesión</a>
+      <a href="#" onclick="showPage('login')" id="navLogin" class="btn-primary-sm">Iniciar sesión</a>
+      <a href="#" onclick="showPage('register')" id="navRegister" class="btn-outline-sm">Registrarse</a>
+      <button onclick="toggleDarkMode()" id="btnDarkMode" class="btn-icon" title="Modo oscuro">🌙</button>
+    </div>
+  </nav>
+
+  <!-- LOGIN -->
+  <div id="page-login" class="page hidden">
+    <div class="auth-card">
+      <h2>Iniciar sesión</h2>
+      <div id="loginError" class="alert-error hidden"></div>
+      <input type="email" id="loginEmail" placeholder="Correo electrónico" class="input-field"/>
+      <input type="password" id="loginPassword" placeholder="Contraseña" class="input-field"
+             onkeydown="if(event.key==='Enter') login()"/>
+      <button onclick="login()" class="btn-primary w-full" id="btnLogin">Entrar</button>
+      <p class="text-center mt-1"><a href="#" onclick="showPage('forgot')">¿Olvidaste tu contraseña?</a></p>
+      <p class="text-center mt-1">¿No tienes cuenta? <a href="#" onclick="showPage('register')">Regístrate gratis</a></p>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div id="page-forgot" class="page hidden">
+    <div class="auth-card">
+      <h2>Recuperar contraseña</h2>
+      <p class="text-muted mb-1">Te enviaremos un enlace a tu correo.</p>
+      <div id="forgotError"   class="alert-error   hidden"></div>
+      <div id="forgotSuccess" class="alert-success hidden"></div>
+      <input type="email" id="forgotEmail" placeholder="Correo electrónico" class="input-field"/>
+      <button onclick="forgotPassword()" class="btn-primary w-full" id="btnForgot">Enviar enlace</button>
+      <p class="text-center mt-1"><a href="#" onclick="showPage('login')">← Volver al login</a></p>
+    </div>
+  </div>
+
+  <!-- RESET PASSWORD -->
+  <div id="page-reset" class="page hidden">
+    <div class="auth-card">
+      <h2>Nueva contraseña</h2>
+      <div id="resetError"   class="alert-error   hidden"></div>
+      <div id="resetSuccess" class="alert-success hidden"></div>
+      <input type="password" id="resetPassword"  placeholder="Nueva contraseña (mín. 8 caracteres)" class="input-field"/>
+      <input type="password" id="resetPassword2" placeholder="Confirmar contraseña" class="input-field"/>
+      <button onclick="resetPassword()" class="btn-primary w-full" id="btnReset">Guardar contraseña</button>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="page-register" class="page hidden">
+    <div class="auth-card">
+      <h2>Crear cuenta gratis</h2>
+      <p class="text-muted mb-1">30 facturas/mes sin tarjeta de crédito</p>
+      <div id="registerError" class="alert-error hidden"></div>
+      <input type="text"     id="regNombre"   placeholder="Nombre completo"                class="input-field"/>
+      <input type="text"     id="regEmpresa"  placeholder="Empresa / Despacho (opcional)"  class="input-field"/>
+      <input type="email"    id="regEmail"    placeholder="Correo electrónico"              class="input-field"/>
+      <input type="password" id="regPassword" placeholder="Contraseña (mín. 8 caracteres)" class="input-field"
+             onkeydown="if(event.key==='Enter') register()"/>
+      <button onclick="register()" class="btn-primary w-full" id="btnRegister">Crear cuenta gratis</button>
+      <p class="text-center mt-1">¿Ya tienes cuenta? <a href="#" onclick="showPage('login')">Inicia sesión</a></p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page hidden">
+    <div class="container">
+      <div class="welcome-bar">
+        <div>
+          <h2 id="welcomeNombre">¡Hola!</h2>
+          <p id="welcomePlan" class="badge-plan"></p>
+        </div>
+        <div class="uso-bar-wrap">
+          <div class="uso-label">
+            <span id="usoFacturas">0</span> / <span id="usoLimite">30</span>
+            facturas este mes
+          </div>
+          <div class="uso-bar-bg"><div class="uso-bar-fill" id="usoBarFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📤 Subir archivos ZIP / RAR con facturas CFDI</h3>
+        <div class="drop-zone" id="dropZone"
+             onclick="document.getElementById('fileInput').click()"
+             ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
+          <div class="drop-icon">📦</div>
+          <p>Arrastra archivos ZIP o RAR aquí, o haz clic para seleccionarlos</p>
+          <p class="text-muted">Puedes subir varios archivos a la vez</p>
+          <input type="file" id="fileInput" multiple accept=".zip,.rar"
+                 style="display:none" onchange="filesSelected(event)"/>
+        </div>
+        <div id="fileList" class="file-list hidden"></div>
+        <div id="uploadProgress" class="hidden">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          <p id="progressText" class="text-center text-muted">Procesando...</p>
+        </div>
+        <div id="uploadError"   class="alert-error   hidden"></div>
+        <div id="uploadSuccess" class="alert-success hidden"></div>
+        <button id="btnProcesar" onclick="procesar()" class="btn-primary mt-1 hidden">
+          ⚡ Procesar y descargar Excel
+        </button>
+      </div>
+
+      <div class="card mt-1">
+        <div class="card-header-row">
+          <h3>🗂️ Últimas descargas</h3>
+          <a href="#" onclick="showPage('historial')" class="link-sm">Ver todo →</a>
+        </div>
+        <div id="historialQuick"><p class="text-muted">Cargando...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div id="page-historial" class="page hidden">
+    <div class="container">
+      <h2>🗂️ Historial de Excels generados</h2>
+      <div id="historialTabla"><p class="text-muted">Cargando...</p></div>
+    </div>
+  </div>
+
+  <!-- VALIDAR SAT -->
+  <div id="page-validar" class="page hidden">
+    <div class="container narrow">
+      <h2>🔍 Validar factura ante el SAT</h2>
+      <p class="text-muted mb-1">Consulta el estado oficial: <strong>Vigente</strong> o <strong>Cancelada</strong></p>
+      <div class="card">
+        <input type="text" id="satUuid"     placeholder="UUID / Folio Fiscal (ej: 6128396f-c09b-4ec6-8699-…)" class="input-field"/>
+        <div class="row-2">
+          <input type="text" id="satEmisor"   placeholder="RFC Emisor"   class="input-field"/>
+          <input type="text" id="satReceptor" placeholder="RFC Receptor"  class="input-field"/>
+        </div>
+        <input type="text" id="satTotal" placeholder="Total exacto (ej: 1160.00)" class="input-field"/>
+        <button onclick="validarSat()" class="btn-primary w-full" id="btnValidar">Consultar SAT</button>
+        <div id="satResult" class="hidden mt-1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANES -->
+  <div id="page-planes" class="page hidden">
+    <div class="container">
+      <h2 class="text-center">Planes y Precios</h2>
+      <p class="text-center text-muted mb-2">Empieza gratis, escala cuando lo necesites</p>
+      <div id="planesGrid" class="planes-grid">
+        <p class="text-muted text-center">Cargando planes...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME / LANDING -->
+  <div id="page-home" class="page">
+
+    <!-- HERO -->
+    <section class="landing-hero">
+      <div class="landing-badge">🇲🇽 Diseñado para México · CFDI 3.3 y 4.0</div>
+      <h1>De ZIP caótico a<br/><span class="accent">Excel ordenado</span> en segundos</h1>
+      <p class="landing-sub">Sube tus facturas comprimidas y descarga un Excel perfecto, ordenado por fecha, listo para tu contabilidad.</p>
+      <div class="landing-btns">
+        <button onclick="showPage('register')" class="btn-primary btn-lg">Comenzar gratis</button>
+        <button onclick="showPage('planes')"   class="btn-outline  btn-lg">Ver planes</button>
+      </div>
+      <p class="landing-note">Sin tarjeta de crédito · 30 facturas gratis/mes</p>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="landing-section">
+      <div class="container">
+        <div class="landing-grid-3">
+          <div class="landing-card">
+            <div class="landing-icon">📦</div>
+            <h3>ZIP y RAR</h3>
+            <p>Arrastra tus comprimidos y procesa cientos de XMLs a la vez sin esfuerzo</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">📊</div>
+            <h3>Excel perfecto</h3>
+            <p>3 hojas: Facturas, Resumen y Conceptos. Ordenado por fecha automáticamente</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">🔍</div>
+            <h3>Validación SAT</h3>
+            <p>Consulta el estado oficial de cualquier CFDI directamente en el portal del SAT</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">📁</div>
+            <h3>Historial</h3>
+            <p>Todos tus Excels guardados en la nube, descargables en cualquier momento</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">⚡</div>
+            <h3>CFDI 3.3 y 4.0</h3>
+            <p>Compatible con todas las versiones de facturas electrónicas del SAT</p>
+          </div>
+          <div class="landing-card">
+            <div class="landing-icon">🔒</div>
+            <h3>Seguro</h3>
+            <p>Tus datos cifrados y protegidos. Solo tú accedes a tus archivos</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CÓMO FUNCIONA -->
+    <section class="landing-section landing-section-alt">
+      <div class="container">
+        <h2 class="text-center">Cómo funciona</h2>
+        <p class="text-center text-muted mb-2">Tres pasos y listo</p>
+        <div class="landing-steps">
+          <div class="landing-step">
+            <div class="step-num">1</div>
+            <h3>Sube tu ZIP o RAR</h3>
+            <p class="text-muted">Con todos tus XMLs de facturas adentro</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="landing-step">
+            <div class="step-num">2</div>
+            <h3>Procesamos los CFDI</h3>
+            <p class="text-muted">Leemos, validamos y ordenamos cada factura</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="landing-step">
+            <div class="step-num">3</div>
+            <h3>Descarga tu Excel</h3>
+            <p class="text-muted">Listo para tu contabilidad o declaración</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIOS -->
+    <section class="landing-section">
+      <div class="container">
+        <h2 class="text-center">Lo que dicen nuestros usuarios</h2>
+        <div class="landing-grid-2 mt-1">
+          <div class="testimonio-card">
+            <p class="testimonio-texto">"Antes tardaba 2 horas capturando facturas en Excel. Ahora lo hago en 30 segundos."</p>
+            <div class="testimonio-autor">
+              <div class="testimonio-avatar">MG</div>
+              <div>
+                <strong>María G.</strong>
+                <span class="text-muted">Contadora independiente</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonio-card">
+            <p class="testimonio-texto">"Proceso las facturas de 50 clientes cada mes. FacturasFacil me ahorró un empleado."</p>
+            <div class="testimonio-autor">
+              <div class="testimonio-avatar">RL</div>
+              <div>
+                <strong>Roberto L.</strong>
+                <span class="text-muted">Despacho contable, CDMX</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLANES RESUMEN -->
+    <section class="landing-section landing-section-alt">
+      <div class="container">
+        <h2 class="text-center">Planes y precios</h2>
+        <p class="text-center text-muted mb-2">Empieza gratis, escala cuando lo necesites</p>
+        <div class="landing-grid-3">
+          <div class="landing-plan-card">
+            <div class="plan-nombre">Gratis</div>
+            <div class="landing-precio">$0 <span>/mes</span></div>
+            <div class="plan-limite">30 facturas/mes</div>
+            <ul class="plan-features"><li>Descarga en Excel</li><li>Historial 1 mes</li><li>Soporte por email</li></ul>
+            <button onclick="showPage('register')" class="btn-outline w-full">Comenzar gratis</button>
+          </div>
+          <div class="landing-plan-card landing-plan-popular">
+            <div class="landing-popular-badge">Más popular</div>
+            <div class="plan-nombre">Contador</div>
+            <div class="landing-precio">$199 <span>/mes MXN</span></div>
+            <div class="plan-limite">2,000 facturas/mes</div>
+            <ul class="plan-features"><li>Historial 6 meses</li><li>Validación SAT</li><li>Soporte prioritario</li></ul>
+            <button onclick="showPage('register')" class="btn-primary w-full">Contratar</button>
+          </div>
+          <div class="landing-plan-card">
+            <div class="plan-nombre">Despacho</div>
+            <div class="landing-precio">$499 <span>/mes MXN</span></div>
+            <div class="plan-limite">Ilimitadas</div>
+            <ul class="plan-features"><li>Historial completo</li><li>Validación SAT</li><li>Soporte 24/7</li></ul>
+            <button onclick="showPage('register')" class="btn-outline w-full">Contratar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="landing-cta">
+      <h2>¿Listo para ahorrar horas cada mes?</h2>
+      <p>Únete a contadores y despachos que ya automatizan su proceso de facturas</p>
+      <button onclick="showPage('register')" class="btn-primary btn-lg">Crear cuenta gratis</button>
+      <p class="landing-note">Sin tarjeta · Cancela cuando quieras</p>
+    </section>
+
+  </div>
+
+  <!-- ADMIN -->
+  <div id="page-admin" class="page hidden">
+    <div class="container">
+      <h2>⚙️ Panel de Administración</h2>
+
+      <!-- Stats -->
+      <div class="admin-stats" id="adminStats">
+        <div class="stat-card"><div class="stat-num" id="statUsuarios">—</div><div class="stat-label">Usuarios totales</div></div>
+        <div class="stat-card"><div class="stat-num" id="statPago">—</div><div class="stat-label">Con plan de pago</div></div>
+        <div class="stat-card"><div class="stat-num" id="statExcels">—</div><div class="stat-label">Excels generados</div></div>
+        <div class="stat-card"><div class="stat-num" id="statFacturas">—</div><div class="stat-label">Facturas procesadas</div></div>
+      </div>
+
+      <!-- Tabla usuarios -->
+      <div class="card mt-1">
+        <h3>👥 Usuarios</h3>
+        <div id="adminTabla"><p class="text-muted">Cargando...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js?v=2"></script>
+</body>
+</html>

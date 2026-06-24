@@ -659,6 +659,15 @@ updateNav();
     window.history.replaceState({}, '', '/');
     showPage('reset');
 
+  // Llegada desde el landing: abrir registro o login directamente
+  } else if (params.has('signup')) {
+    window.history.replaceState({}, '', '/app.html');
+    showPage(token ? 'dashboard' : 'register');
+
+  } else if (params.has('login')) {
+    window.history.replaceState({}, '', '/app.html');
+    showPage(token ? 'dashboard' : 'login');
+
   } else if (token) {
     showPage('dashboard');
   }

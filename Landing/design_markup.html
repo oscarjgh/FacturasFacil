@@ -1,38 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FacturasFacil — De ZIP caótico a Excel ordenado en segundos</title>
-  <meta name="description" content="Procesa tus facturas CFDI (3.3 y 4.0) automáticamente. Sube tu ZIP o RAR y descarga un Excel ordenado por fecha en segundos. Ideal para contadores y despachos en México.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231f6feb'/%3E%3Ctext x='50' y='70' font-size='56' text-anchor='middle' fill='%23fff'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { font-family:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing:antialiased; }
-a { text-decoration:none; color:inherit; }
-.hv0:hover{color:#0c1726}
-.hv1:hover{color:#0c1726}
-.hv2:hover{color:#0c1726}
-.hv3:hover{color:#0c1726}
-.hv4:hover{transform:translateY(-1px);box-shadow:0 10px 22px color-mix(in srgb,var(--accent,#1f6feb),transparent 64%)}
-.hv5:hover{transform:translateY(-2px);box-shadow:0 16px 32px color-mix(in srgb,var(--accent,#1f6feb),transparent 62%)}
-.hv6:hover{border-color:var(--accent,#1f6feb);transform:translateY(-2px)}
-.hv7:hover{border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)}
-.hv8:hover{border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)}
-.hv9:hover{border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)}
-.hv10:hover{border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)}
-.hv11:hover{border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)}
-.hv12:hover{border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)}
-.hv13:hover{background:#e3eaf4}
-.hv14:hover{transform:translateY(-2px)}
-.hv15:hover{background:#e3eaf4}
-.hv16:hover{transform:translateY(-2px)}
-  </style>
-</head>
-<body>
-<div style="--accent: #1f6feb; font-size:17px; line-height:1.55; color:#0c1726; background:#ffffff;">
+
+
+<div style="--accent: {{ accent }}; font-size:17px; line-height:1.55; color:#0c1726; background:#ffffff;">
 
   <!-- ============ NAV ============ -->
   <header style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid #e9eef5;">
@@ -43,12 +11,12 @@ a { text-decoration:none; color:inherit; }
       </a>
       <div style="flex:1"></div>
       <nav style="display:flex;gap:26px;align-items:center;font-weight:600;font-size:15px;color:#42526a;">
-        <a href="#funciones" style="transition:color .15s"  class="hv0">Funciones</a>
-        <a href="#como" style="transition:color .15s"  class="hv1">Cómo funciona</a>
-        <a href="#precios" style="transition:color .15s"  class="hv2">Precios</a>
-        <a href="#seguridad" style="transition:color .15s"  class="hv3">Seguridad</a>
+        <a href="#funciones" style="transition:color .15s" style-hover="color:#0c1726">Funciones</a>
+        <a href="#como" style="transition:color .15s" style-hover="color:#0c1726">Cómo funciona</a>
+        <a href="#precios" style="transition:color .15s" style-hover="color:#0c1726">Precios</a>
+        <a href="#seguridad" style="transition:color .15s" style-hover="color:#0c1726">Seguridad</a>
       </nav>
-      <a href="/app.html?signup=1" style="background:var(--accent,#1f6feb);color:#fff;font-weight:700;padding:11px 18px;border-radius:10px;font-size:15px;box-shadow:0 6px 16px color-mix(in srgb,var(--accent,#1f6feb),transparent 72%);transition:transform .15s,box-shadow .15s"  class="hv4">Crear cuenta gratis</a>
+      <a href="https://facturasfacil-production.up.railway.app" target="_blank" rel="noopener" style="background:var(--accent,#1f6feb);color:#fff;font-weight:700;padding:11px 18px;border-radius:10px;font-size:15px;box-shadow:0 6px 16px color-mix(in srgb,var(--accent,#1f6feb),transparent 72%);transition:transform .15s,box-shadow .15s" style-hover="transform:translateY(-1px);box-shadow:0 10px 22px color-mix(in srgb,var(--accent,#1f6feb),transparent 64%)">Crear cuenta gratis</a>
     </div>
   </header>
 
@@ -64,8 +32,8 @@ a { text-decoration:none; color:inherit; }
         <h1 style="font-size:54px;line-height:1.04;letter-spacing:-.025em;font-weight:800;margin:22px 0 0;">Convierte tus facturas <span style="color:var(--accent,#1f6feb)">CFDI</span> en Excel en segundos</h1>
         <p style="font-size:19px;color:#46566d;margin:22px 0 0;max-width:520px;text-wrap:pretty;">Sube tu ZIP o RAR con XMLs (CFDI 3.3 y 4.0) y FacturasFacil te entrega un Excel ordenado, validado y listo para tu contabilidad. Sin captura manual, sin errores.</p>
         <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px;">
-          <a href="/app.html?signup=1" style="background:var(--accent,#1f6feb);color:#fff;font-weight:700;padding:15px 26px;border-radius:12px;font-size:16.5px;box-shadow:0 10px 24px color-mix(in srgb,var(--accent,#1f6feb),transparent 70%);transition:transform .15s,box-shadow .15s"  class="hv5">Crear cuenta gratis</a>
-          <a href="#como" style="background:#fff;color:#0c1726;font-weight:700;padding:15px 24px;border-radius:12px;font-size:16.5px;border:1px solid #d8e2ef;transition:border-color .15s,transform .15s"  class="hv6">Ver cómo funciona →</a>
+          <a href="https://facturasfacil-production.up.railway.app" target="_blank" rel="noopener" style="background:var(--accent,#1f6feb);color:#fff;font-weight:700;padding:15px 26px;border-radius:12px;font-size:16.5px;box-shadow:0 10px 24px color-mix(in srgb,var(--accent,#1f6feb),transparent 70%);transition:transform .15s,box-shadow .15s" style-hover="transform:translateY(-2px);box-shadow:0 16px 32px color-mix(in srgb,var(--accent,#1f6feb),transparent 62%)">Crear cuenta gratis</a>
+          <a href="#como" style="background:#fff;color:#0c1726;font-weight:700;padding:15px 24px;border-radius:12px;font-size:16.5px;border:1px solid #d8e2ef;transition:border-color .15s,transform .15s" style-hover="border-color:var(--accent,#1f6feb);transform:translateY(-2px)">Ver cómo funciona →</a>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:18px;margin-top:26px;font-size:14px;font-weight:600;color:#5b6b80;">
           <span style="display:flex;align-items:center;gap:7px;"><span style="color:#15a34a;font-weight:800;">✓</span> Sin tarjeta de crédito</span>
@@ -200,32 +168,32 @@ a { text-decoration:none; color:inherit; }
         <h2 style="font-size:36px;line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:14px 0 0;">Todo lo que necesitas para procesar facturas</h2>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px;">
-        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;"  class="hv7">
+        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;" style-hover="border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)">
           <div style="width:9px;height:9px;border-radius:3px;background:var(--accent,#1f6feb);"></div>
           <h3 style="font-size:18px;font-weight:800;margin:16px 0 0;">Carga ZIP y RAR</h3>
           <p style="font-size:15px;color:#52627a;margin:8px 0 0;">Sube comprimidos con múltiples XMLs de una sola vez, sin límite de archivos.</p>
         </div>
-        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;"  class="hv8">
+        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;" style-hover="border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)">
           <div style="width:9px;height:9px;border-radius:3px;background:var(--accent,#1f6feb);"></div>
           <h3 style="font-size:18px;font-weight:800;margin:16px 0 0;">CFDI 3.3 y 4.0</h3>
           <p style="font-size:15px;color:#52627a;margin:8px 0 0;">Compatible con facturas de ingreso, egreso y traslado. Extrae emisor, receptor, UUID, IVA y retenciones.</p>
         </div>
-        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;"  class="hv9">
+        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;" style-hover="border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)">
           <div style="width:9px;height:9px;border-radius:3px;background:var(--accent,#1f6feb);"></div>
           <h3 style="font-size:18px;font-weight:800;margin:16px 0 0;">Excel con 3 hojas</h3>
           <p style="font-size:15px;color:#52627a;margin:8px 0 0;">Facturas, Resumen y Conceptos: ordenadas, agrupadas y con el detalle de cada línea.</p>
         </div>
-        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;"  class="hv10">
+        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;" style-hover="border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)">
           <div style="width:9px;height:9px;border-radius:3px;background:var(--accent,#1f6feb);"></div>
           <h3 style="font-size:18px;font-weight:800;margin:16px 0 0;">Validación SAT</h3>
           <p style="font-size:15px;color:#52627a;margin:8px 0 0;">Consulta el estado oficial de cualquier CFDI. Resultado inmediato: Vigente o Cancelada.</p>
         </div>
-        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;"  class="hv11">
+        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;" style-hover="border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)">
           <div style="width:9px;height:9px;border-radius:3px;background:var(--accent,#1f6feb);"></div>
           <h3 style="font-size:18px;font-weight:800;margin:16px 0 0;">Historial en la nube</h3>
           <p style="font-size:15px;color:#52627a;margin:8px 0 0;">Todos tus Excels guardados de forma segura. Descárgalos cuando quieras, desde cualquier dispositivo.</p>
         </div>
-        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;"  class="hv12">
+        <div style="border:1px solid #e7edf5;border-radius:15px;padding:26px 24px;transition:border-color .15s,box-shadow .15s,transform .15s;" style-hover="border-color:color-mix(in srgb,var(--accent,#1f6feb),white 55%);box-shadow:0 14px 30px -18px rgba(12,32,68,.22);transform:translateY(-2px)">
           <div style="width:9px;height:9px;border-radius:3px;background:var(--accent,#1f6feb);"></div>
           <h3 style="font-size:18px;font-weight:800;margin:16px 0 0;">Cuenta segura</h3>
           <p style="font-size:15px;color:#52627a;margin:8px 0 0;">Inicio de sesión con cifrado JWT, recuperación por correo y modo oscuro para trabajo nocturno.</p>
@@ -266,10 +234,13 @@ a { text-decoration:none; color:inherit; }
 
         <!-- Gratis -->
         <div style="position:relative;background:#fff;border:1px solid #e4ebf4;border-radius:18px;padding:32px 28px;">
-          
+          <sc-if value="{{ isFeatGratis }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:18px;right:18px;background:var(--accent,#1f6feb);color:#fff;font-size:12px;font-weight:800;padding:5px 11px;border-radius:999px;">Más popular</div>
+            <div style="position:absolute;inset:0;border:2px solid var(--accent,#1f6feb);border-radius:18px;pointer-events:none;"></div>
+          </sc-if>
           <div style="font-size:15px;font-weight:800;color:#52627a;">Gratis</div>
           <div style="display:flex;align-items:baseline;gap:5px;margin-top:10px;"><span style="font-size:44px;font-weight:800;letter-spacing:-.02em;">$0</span><span style="font-size:15px;color:#8295ad;font-weight:600;">MXN/mes</span></div>
-          <a href="/app.html?signup=1" style="display:block;text-align:center;margin-top:20px;background:#eef3f9;color:#0c1726;font-weight:700;padding:13px;border-radius:11px;font-size:15.5px;transition:background .15s"  class="hv13">Empezar gratis</a>
+          <a href="https://facturasfacil-production.up.railway.app" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:20px;background:#eef3f9;color:#0c1726;font-weight:700;padding:13px;border-radius:11px;font-size:15.5px;transition:background .15s" style-hover="background:#e3eaf4">Empezar gratis</a>
           <div style="display:flex;flex-direction:column;gap:11px;margin-top:24px;font-size:15px;color:#46566d;">
             <span style="display:flex;gap:9px;"><span style="color:#15a34a;font-weight:800;">✓</span> 30 facturas al mes</span>
             <span style="display:flex;gap:9px;"><span style="color:#15a34a;font-weight:800;">✓</span> Descarga de Excel</span>
@@ -281,13 +252,13 @@ a { text-decoration:none; color:inherit; }
 
         <!-- Contador -->
         <div style="position:relative;background:#fff;border:1px solid #e4ebf4;border-radius:18px;padding:32px 28px;box-shadow:0 24px 50px -24px rgba(12,32,68,.28);">
-          
+          <sc-if value="{{ isFeatContador }}" hint-placeholder-val="{{ true }}">
             <div style="position:absolute;top:18px;right:18px;background:var(--accent,#1f6feb);color:#fff;font-size:12px;font-weight:800;padding:5px 11px;border-radius:999px;">Más popular</div>
             <div style="position:absolute;inset:0;border:2px solid var(--accent,#1f6feb);border-radius:18px;pointer-events:none;"></div>
-          
+          </sc-if>
           <div style="font-size:15px;font-weight:800;color:var(--accent,#1f6feb);">Contador</div>
           <div style="display:flex;align-items:baseline;gap:5px;margin-top:10px;"><span style="font-size:44px;font-weight:800;letter-spacing:-.02em;">$199</span><span style="font-size:15px;color:#8295ad;font-weight:600;">MXN/mes</span></div>
-          <a href="/app.html?signup=1" style="display:block;text-align:center;margin-top:20px;background:var(--accent,#1f6feb);color:#fff;font-weight:700;padding:13px;border-radius:11px;font-size:15.5px;box-shadow:0 10px 22px color-mix(in srgb,var(--accent,#1f6feb),transparent 70%);transition:transform .15s"  class="hv14">Elegir Contador</a>
+          <a href="https://facturasfacil-production.up.railway.app" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:20px;background:var(--accent,#1f6feb);color:#fff;font-weight:700;padding:13px;border-radius:11px;font-size:15.5px;box-shadow:0 10px 22px color-mix(in srgb,var(--accent,#1f6feb),transparent 70%);transition:transform .15s" style-hover="transform:translateY(-2px)">Elegir Contador</a>
           <div style="display:flex;flex-direction:column;gap:11px;margin-top:24px;font-size:15px;color:#46566d;">
             <span style="display:flex;gap:9px;"><span style="color:#15a34a;font-weight:800;">✓</span> 2,000 facturas al mes</span>
             <span style="display:flex;gap:9px;"><span style="color:#15a34a;font-weight:800;">✓</span> Validación SAT incluida</span>
@@ -299,10 +270,13 @@ a { text-decoration:none; color:inherit; }
 
         <!-- Despacho -->
         <div style="position:relative;background:#fff;border:1px solid #e4ebf4;border-radius:18px;padding:32px 28px;">
-          
+          <sc-if value="{{ isFeatDespacho }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:18px;right:18px;background:var(--accent,#1f6feb);color:#fff;font-size:12px;font-weight:800;padding:5px 11px;border-radius:999px;">Más popular</div>
+            <div style="position:absolute;inset:0;border:2px solid var(--accent,#1f6feb);border-radius:18px;pointer-events:none;"></div>
+          </sc-if>
           <div style="font-size:15px;font-weight:800;color:#52627a;">Despacho</div>
           <div style="display:flex;align-items:baseline;gap:5px;margin-top:10px;"><span style="font-size:44px;font-weight:800;letter-spacing:-.02em;">$499</span><span style="font-size:15px;color:#8295ad;font-weight:600;">MXN/mes</span></div>
-          <a href="/app.html?signup=1" style="display:block;text-align:center;margin-top:20px;background:#eef3f9;color:#0c1726;font-weight:700;padding:13px;border-radius:11px;font-size:15.5px;transition:background .15s"  class="hv15">Elegir Despacho</a>
+          <a href="https://facturasfacil-production.up.railway.app" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:20px;background:#eef3f9;color:#0c1726;font-weight:700;padding:13px;border-radius:11px;font-size:15.5px;transition:background .15s" style-hover="background:#e3eaf4">Elegir Despacho</a>
           <div style="display:flex;flex-direction:column;gap:11px;margin-top:24px;font-size:15px;color:#46566d;">
             <span style="display:flex;gap:9px;"><span style="color:#15a34a;font-weight:800;">✓</span> Facturas ilimitadas</span>
             <span style="display:flex;gap:9px;"><span style="color:#15a34a;font-weight:800;">✓</span> Validación SAT incluida</span>
@@ -362,7 +336,7 @@ a { text-decoration:none; color:inherit; }
       <h2 style="font-size:42px;line-height:1.08;letter-spacing:-.025em;font-weight:800;margin:0;">Transforma tu proceso contable hoy</h2>
       <p style="font-size:19px;opacity:.92;margin:18px auto 0;max-width:560px;">Comienza gratis, sin tarjeta de crédito, en menos de 2 minutos. Tu primer Excel está a un ZIP de distancia.</p>
       <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:32px;">
-        <a href="/app.html?signup=1" style="background:#fff;color:var(--accent,#1f6feb);font-weight:800;padding:16px 30px;border-radius:12px;font-size:17px;box-shadow:0 14px 30px rgba(0,0,0,.18);transition:transform .15s"  class="hv16">Crear cuenta gratis ahora</a>
+        <a href="https://facturasfacil-production.up.railway.app" target="_blank" rel="noopener" style="background:#fff;color:var(--accent,#1f6feb);font-weight:800;padding:16px 30px;border-radius:12px;font-size:17px;box-shadow:0 14px 30px rgba(0,0,0,.18);transition:transform .15s" style-hover="transform:translateY(-2px)">Crear cuenta gratis ahora</a>
       </div>
       <div style="margin-top:22px;font-size:14.5px;opacity:.85;font-family:ui-monospace,Menlo,monospace;">facturasfacil-production.up.railway.app</div>
     </div>
@@ -380,17 +354,15 @@ a { text-decoration:none; color:inherit; }
       </div>
       <div style="font-size:14px;">
         <div style="color:#fff;font-weight:700;margin-bottom:8px;">Contacto y soporte</div>
-        <a href="/app.html" style="font-family:ui-monospace,Menlo,monospace;color:color-mix(in srgb,var(--accent,#1f6feb),white 30%);">facturasfacil-production.up.railway.app</a>
+        <a href="https://facturasfacil-production.up.railway.app" target="_blank" rel="noopener" style="font-family:ui-monospace,Menlo,monospace;color:color-mix(in srgb,var(--accent,#1f6feb),white 30%);">facturasfacil-production.up.railway.app</a>
       </div>
     </div>
     <div style="border-top:1px solid #1b293f;">
       <div style="max-width:1100px;margin:0 auto;padding:18px 32px;font-size:12.5px;color:#6e7f97;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;">
-        <span>© 2026 FacturasFacil · Junio 2026</span>
+        <span>© {{ year }} FacturasFacil · Junio 2026</span>
         <span>Precios en MXN más IVA · Plan gratis sin tarjeta de crédito</span>
       </div>
     </div>
   </footer>
 
 </div>
-</body>
-</html>
