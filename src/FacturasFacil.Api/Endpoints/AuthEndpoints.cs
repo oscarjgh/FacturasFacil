@@ -109,9 +109,10 @@ public static class AuthEndpoints
             if (user != null)
             {
                 var resetToken = await um.GeneratePasswordResetTokenAsync(user);
-                var baseUrl = config["App:BaseUrl"]
-                              ?? $"{httpReq.Scheme}://{httpReq.Host}";
-                var resetUrl = $"{baseUrl}?reset=1&email={Uri.EscapeDataString(req.Email)}&token={Uri.EscapeDataString(resetToken)}";
+                var baseUrl = (config["App:BaseUrl"]
+                              ?? $"{httpReq.Scheme}://{httpReq.Host}").TrimEnd('/');
+                // Apunta a la app (no al landing en "/"), donde app.js procesa el reset.
+                var resetUrl = $"{baseUrl}/app.html?reset=1&email={Uri.EscapeDataString(req.Email)}&token={Uri.EscapeDataString(resetToken)}";
                 await emailSvc.EnviarRecuperacionPasswordAsync(user.Email!, user.NombreCompleto, resetUrl);
             }
             return Results.Ok(new { mensaje = "Si el email existe, recibirás un enlace en breve." });

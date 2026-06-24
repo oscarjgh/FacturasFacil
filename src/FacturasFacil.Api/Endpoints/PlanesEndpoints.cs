@@ -102,8 +102,10 @@ public static class PlanesEndpoints
                     Customer  = user.StripeCustomerId,
                     Mode      = "subscription",
                     LineItems = [new SessionLineItemOptions { Price = plan.StripePriceId, Quantity = 1 }],
-                    SuccessUrl = baseUrl + "?session_id={CHECKOUT_SESSION_ID}",
-                    CancelUrl  = config["Stripe:CancelUrl"]?.TrimEnd('/') ?? baseUrl,
+                    // Regresar a la app (no al landing en "/"), donde app.js procesa
+                    // el session_id y muestra el dashboard con el aviso de pago exitoso.
+                    SuccessUrl = baseUrl + "/app.html?session_id={CHECKOUT_SESSION_ID}",
+                    CancelUrl  = config["Stripe:CancelUrl"]?.TrimEnd('/') ?? (baseUrl + "/app.html"),
                     Metadata   = new Dictionary<string, string>
                     {
                         ["userId"] = userId,

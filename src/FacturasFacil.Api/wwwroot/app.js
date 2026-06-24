@@ -642,7 +642,7 @@ updateNav();
 
   // Regreso desde Stripe (?session_id=...)
   if (params.has('session_id') && token) {
-    window.history.replaceState({}, '', '/');
+    window.history.replaceState({}, '', '/app.html');
     await refreshUserInfo();
     showPage('dashboard');
     const banner = document.createElement('div');
@@ -656,7 +656,7 @@ updateNav();
   } else if (params.has('reset')) {
     _resetEmail = params.get('email') || '';
     _resetToken = params.get('token') || '';
-    window.history.replaceState({}, '', '/');
+    window.history.replaceState({}, '', '/app.html');
     showPage('reset');
 
   // Llegada desde el landing: abrir registro o login directamente
