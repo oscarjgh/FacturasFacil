@@ -20,3 +20,12 @@ appsettings.Production.json
 ## OS
 .DS_Store
 Thumbs.db
+
+## Capturas, imagenes sueltas y temporales de Office
+Captura de pantalla*.jpg
+Captura de pantalla*.png
+*.jfif
+~$*
+
+## Documentos generados (no son codigo fuente)
+*.docx
