@@ -79,10 +79,28 @@ public static class PlanesEndpoints
 
             try
             {
-                // Crear o recuperar customer en Stripe
-                if (string.IsNullOrEmpty(user!.StripeCustomerId))
+                // Crear o recuperar customer en Stripe.
+                var custSvc = new Stripe.CustomerService();
+
+                // Validar que el customer guardado siga existiendo en el modo actual
+                // (un customer creado en modo PRUEBA no existe en modo LIVE y viceversa,
+                //  lo que provoca el error "No such customer").
+                var customerValido = false;
+                if (!string.IsNullOrEmpty(user!.StripeCustomerId))
                 {
-                    var custSvc  = new Stripe.CustomerService();
+                    try
+                    {
+                        var existente = await custSvc.GetAsync(user.StripeCustomerId);
+                        customerValido = existente is { Deleted: not true };
+                    }
+                    catch (Stripe.StripeException)
+                    {
+                        customerValido = false; // No existe en este modo: se recrea abajo
+                    }
+                }
+
+                if (!customerValido)
+                {
                     var customer = await custSvc.CreateAsync(new Stripe.CustomerCreateOptions
                     {
                         Email    = user.Email,
