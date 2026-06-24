@@ -111,4 +111,34 @@ app.MapPlanesEndpoints();
 app.MapFacturasEndpoints();
 app.MapAdminEndpoints();
 
+// ── Diagnóstico Stripe (solo prefijos, NO expone llaves) ───────
+// Temporal: confirma qué modo de Stripe usa REALMENTE la app desplegada.
+app.MapGet("/api/diag/stripe", (IConfiguration cfg) =>
+{
+    string Prefijo(string? v, int n) =>
+        string.IsNullOrEmpty(v) ? "(vacío)" : v[..Math.Min(n, v.Length)];
+
+    var secret  = cfg["Stripe:SecretKey"];
+    var webhook = cfg["Stripe:WebhookSecret"];
+
+    string modo = secret switch
+    {
+        null or "" => "SIN CONFIGURAR",
+        var s when s.StartsWith("sk_live_") => "LIVE ✅",
+        var s when s.StartsWith("sk_test_") => "TEST ⚠️",
+        var s when s.StartsWith("sk_test_TU_") => "PLACEHOLDER (appsettings) ❌",
+        _ => "DESCONOCIDO"
+    };
+
+    return Results.Ok(new
+    {
+        modo,
+        secretKeyPrefijo  = Prefijo(secret, 8),
+        secretKeyEsPlaceholder = secret == "sk_test_TU_CLAVE_SECRETA_STRIPE",
+        webhookPrefijo    = Prefijo(webhook, 6),
+        webhookEsPlaceholder   = webhook == "whsec_TU_WEBHOOK_SECRET_STRIPE",
+        nota = "Endpoint temporal de diagnóstico. Se elimina cuando Stripe quede configurado."
+    });
+});
+
 app.Run();
